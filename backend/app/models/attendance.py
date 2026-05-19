@@ -74,8 +74,16 @@ class LeaveRequest(BaseModel):
     approved_at   = Column(Date, nullable=True)
     reject_reason = Column(Text, nullable=True)
 
-    employee = relationship("Employee", back_populates="leaves",
-                            foreign_keys=[employee_id])
+    employee = relationship(
+        "Employee",
+        back_populates="leaves",
+        foreign_keys=[employee_id],
+    )
+    approver = relationship(
+        "Employee",
+        back_populates="approved_leaves",
+        foreign_keys=[approved_by],
+    )
 
 
 class LeaveBalance(BaseModel):
