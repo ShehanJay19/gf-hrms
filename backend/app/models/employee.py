@@ -67,5 +67,14 @@ class Employee(BaseModel):
     section     = relationship("Section", back_populates="employees")
     designation = relationship("Designation", back_populates="employees")
     attendances = relationship("AttendanceLog", back_populates="employee")
-    leaves      = relationship("LeaveRequest", back_populates="employee")
+    leaves      = relationship(
+        "LeaveRequest",
+        back_populates="employee",
+        foreign_keys="LeaveRequest.employee_id",
+    )
+    approved_leaves = relationship(
+        "LeaveRequest",
+        back_populates="approver",
+        foreign_keys="LeaveRequest.approved_by",
+    )
     payslips    = relationship("Payslip", back_populates="employee")

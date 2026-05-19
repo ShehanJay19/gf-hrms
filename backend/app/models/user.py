@@ -17,7 +17,15 @@ class User(BaseModel):
     email       = Column(String(150), unique=True, nullable=False, index=True)
     username    = Column(String(100), unique=True, nullable=False)
     hashed_password = Column(String(255), nullable=False)
-    role        = Column(Enum(UserRole), nullable=False, default=UserRole.EMPLOYEE)
+    role        = Column(
+        Enum(
+            UserRole,
+            values_callable=lambda enum_cls: [member.value for member in enum_cls],
+            name="userrole",
+        ),
+        nullable=False,
+        default=UserRole.EMPLOYEE,
+    )
     employee_id = Column(Integer, ForeignKey("employees.id"), nullable=True)
     is_verified = Column(Boolean, default=False)
     last_login  = Column(String(50), nullable=True)
