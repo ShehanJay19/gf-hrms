@@ -18,7 +18,14 @@ class PayrollRun(BaseModel):
     year          = Column(Integer, nullable=False)
     period_start  = Column(Date, nullable=False)
     period_end    = Column(Date, nullable=False)
-    status        = Column(Enum(PayrollStatus), default=PayrollStatus.DRAFT)
+    status        = Column(
+        Enum(
+            PayrollStatus,
+            values_callable=lambda enum_cls: [member.value for member in enum_cls],
+            name="payrollstatus",
+        ),
+        default=PayrollStatus.DRAFT,
+    )
     processed_by  = Column(Integer, ForeignKey("users.id"), nullable=True)
     approved_by   = Column(Integer, ForeignKey("users.id"), nullable=True)
     notes         = Column(Text, nullable=True)
