@@ -30,8 +30,22 @@ class Employee(BaseModel):
     full_name      = Column(String(200), nullable=False)
     nic            = Column(String(20), unique=True, nullable=False)
     date_of_birth  = Column(Date, nullable=False)
-    gender         = Column(Enum(Gender), nullable=False)
-    marital_status = Column(Enum(MaritalStatus), nullable=True)
+    gender         = Column(
+        Enum(
+            Gender,
+            values_callable=lambda enum_cls: [member.value for member in enum_cls],
+            name="gender",
+        ),
+        nullable=False,
+    )
+    marital_status = Column(
+        Enum(
+            MaritalStatus,
+            values_callable=lambda enum_cls: [member.value for member in enum_cls],
+            name="maritalstatus",
+        ),
+        nullable=True,
+    )
     photo_url      = Column(String(500), nullable=True)
 
     # Contact
@@ -42,7 +56,15 @@ class Employee(BaseModel):
     emergency_tel  = Column(String(20), nullable=True)
 
     # Employment
-    employment_type  = Column(Enum(EmploymentType), nullable=False, default=EmploymentType.PERMANENT)
+    employment_type  = Column(
+        Enum(
+            EmploymentType,
+            values_callable=lambda enum_cls: [member.value for member in enum_cls],
+            name="employmenttype",
+        ),
+        nullable=False,
+        default=EmploymentType.PERMANENT,
+    )
     joined_date      = Column(Date, nullable=False)
     probation_end    = Column(Date, nullable=True)
     resigned_date    = Column(Date, nullable=True)

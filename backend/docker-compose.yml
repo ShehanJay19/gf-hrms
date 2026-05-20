@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: hrms_pass_2025
       POSTGRES_DB: gf_hrms
     ports:
-      - "5432:5432"
+      - "127.0.0.1:15432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
@@ -18,7 +18,7 @@ services:
     image: redis:7-alpine
     container_name: gf_hrms_redis
     ports:
-      - "6379:6379"
+      - "127.0.0.1:16379:6379"
     restart: unless-stopped
 
   minio:

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, field_validator
 from typing import Optional
 from datetime import date
 from decimal import Decimal
@@ -83,6 +83,12 @@ class EmployeeCreate(BaseModel):
     epf_no: Optional[str] = None
     biometric_id: Optional[str] = None
 
+    @field_validator("gender", "employment_type", "marital_status", mode="before")
+    def normalize_enum_values(cls, value):
+        if isinstance(value, str):
+            return value.strip().lower()
+        return value
+
 class EmployeeUpdate(BaseModel):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
@@ -102,6 +108,12 @@ class EmployeeUpdate(BaseModel):
     epf_no: Optional[str] = None
     biometric_id: Optional[str] = None
     marital_status: Optional[MaritalStatus] = None
+
+    @field_validator("employment_type", "marital_status", mode="before")
+    def normalize_enum_values(cls, value):
+        if isinstance(value, str):
+            return value.strip().lower()
+        return value
 
 class EmployeeResponse(BaseModel):
     id: int
