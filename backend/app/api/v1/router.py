@@ -7,6 +7,8 @@ from app.api.v1.routes.employees import (
 	desig_router,
 )
 from app.api.v1.routes import attendance
+from app.api.v1.routes import auth, payroll
+
 
 api_router = APIRouter(prefix="/api/v1")
 
@@ -18,3 +20,4 @@ api_router.include_router(employees_router)
 api_router.include_router(attendance.shift_router)
 api_router.include_router(attendance.router)
 api_router.include_router(attendance.leave_router)
+api_router.include_router(payroll.router)
