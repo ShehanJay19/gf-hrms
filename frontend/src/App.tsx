@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Employees from './pages/Employees';
 import AddEmployee from './pages/AddEmployee';
 import LeaveManagement from './pages/LeaveManagement';
+import Attendance from './pages/Attendance';
 
 type StatCard = {
   label: string;
@@ -231,6 +232,8 @@ function App() {
           <AddEmployee />
         ) : page === 'Leave Management' ? (
           <LeaveManagement />
+        ) : page === 'Attendance' ? (
+          <Attendance />
         ) : (
           <PayrollDashboard />
         )}
