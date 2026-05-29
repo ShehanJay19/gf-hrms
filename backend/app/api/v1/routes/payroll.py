@@ -80,3 +80,32 @@ def get_payslip(
 ):
     """Get individual payslip"""
     return PayrollService.get_employee_payslip(db, run_id, employee_id)
+# Add at the bottom of payroll.py
+from app.tasks.payroll_tasks import auto_process_payroll
+
+@router.post("/runs/{run_id}/process-async")
+def process_payroll_async(
+    run_id: int,
+    db: Session = Depends(get_db),
+    _: User = Depends(payroll_only)
+):
+    """Process payroll in background (for large employee counts)"""
+    task = auto_process_payroll.delay(run_id)
+    return {
+        "message": "Payroll processing started in background",
+        "task_id": task.id
+    }
+
+@router.get("/tasks/{task_id}/status")
+def get_task_status(
+    task_id: str,
+    _: User = Depends(get_current_user)
+):
+    """Check background task status"""
+    from app.core.celery_app import celery_app
+    task = celery_app.AsyncResult(task_id)
+    return {
+        "task_id": task_id,
+        "status":  task.status,
+        "result":  task.result if task.ready() else None
+    }
