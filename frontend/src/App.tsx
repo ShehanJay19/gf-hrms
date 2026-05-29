@@ -5,6 +5,8 @@ import LeaveManagement from './pages/LeaveManagement';
 import Attendance from './pages/Attendance';
 import Reports from './pages/Reports';
 import PayrollRuns from './pages/PayrollRuns';
+import Exports from './pages/Exports';
+import System from './pages/System';
 
 type StatCard = {
   label: string;
@@ -240,6 +242,12 @@ function App() {
           <Reports />
         ) : page === 'Payroll' ? (
           <PayrollRuns />
+        ) : page === 'Reports & Analytics' ? (
+          <Reports />
+        ) : page === 'Exports' ? (
+          <Exports />
+        ) : page === 'System' ? (
+          <System />
         ) : (
           <PayrollDashboard />
         )}
