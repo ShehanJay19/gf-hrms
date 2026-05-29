@@ -7,7 +7,11 @@ const employees = [
   { id: '#GF-4091', name: 'Jannatul Ferdous', dept: 'Design', designation: 'Junior Designer', type: 'Trainee', joined: '01 Oct 2023', salary: '৳ 12,000', status: 'On Leave' },
 ];
 
-export default function Employees() {
+type Props = {
+  onAdd?: () => void;
+};
+
+export default function Employees({ onAdd }: Props) {
   return (
     <div>
       <header className="topbar">
@@ -17,7 +21,7 @@ export default function Employees() {
         </label>
 
         <div className="topbar-actions">
-          <button className="secondary-button">Add New Employee</button>
+          <button className="secondary-button" onClick={() => onAdd && onAdd()}>Add New Employee</button>
         </div>
       </header>
 

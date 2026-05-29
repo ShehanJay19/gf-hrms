@@ -223,7 +223,7 @@ function App() {
       </aside>
 
       <main className="content">
-        {page === 'Employees' ? <Employees /> : <PayrollDashboard />}
+        {page === 'Employees' ? <Employees onAdd={() => setPage('Add Employee')} /> : page === 'Add Employee' ? <AddEmployee /> : <PayrollDashboard />}
       </main>
     </div>
   );
