@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import Employees from './pages/Employees';
+import AddEmployee from './pages/AddEmployee';
+import LeaveManagement from './pages/LeaveManagement';
 
 type StatCard = {
   label: string;
@@ -223,7 +225,15 @@ function App() {
       </aside>
 
       <main className="content">
-        {page === 'Employees' ? <Employees onAdd={() => setPage('Add Employee')} /> : page === 'Add Employee' ? <AddEmployee /> : <PayrollDashboard />}
+        {page === 'Employees' ? (
+          <Employees onAdd={() => setPage('Add Employee')} />
+        ) : page === 'Add Employee' ? (
+          <AddEmployee />
+        ) : page === 'Leave Management' ? (
+          <LeaveManagement />
+        ) : (
+          <PayrollDashboard />
+        )}
       </main>
     </div>
   );
