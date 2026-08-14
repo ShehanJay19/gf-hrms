@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.core.dependencies import hr_manager_only, payroll_only, get_current_user
-from app.schemas.payroll import PayrollRunCreate, PayrollRunResponse, PayslipResponse
+from app.schemas.payroll import PayrollRunCreate, PayrollRunResponse, PayslipResponse, PayrollSummary
 from app.services.payroll_service import PayrollService
 from app.models.user import User
 
@@ -43,7 +43,7 @@ def approve_payroll(
     """Approve a processed payroll run"""
     return PayrollService.approve_run(db, run_id, current_user.id)
 
-@router.get("/runs/{run_id}/summary")
+@router.get("/runs/{run_id}/summary", response_model=PayrollSummary)
 def payroll_summary(
     run_id: int,
     db: Session = Depends(get_db),

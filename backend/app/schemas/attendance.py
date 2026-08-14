@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
-from datetime import date, time
+from datetime import date, time, datetime
 from decimal import Decimal
 from app.models.attendance import AttendanceStatus, LeaveType, LeaveStatus
 
@@ -54,6 +54,7 @@ class AttendanceResponse(BaseModel):
     worked_hours: Decimal
     is_manual: bool
     notes: Optional[str] = None
+    created_at: datetime
 
     class Config:
         from_attributes = True
@@ -86,6 +87,7 @@ class LeaveRequestResponse(BaseModel):
     status: LeaveStatus
     approved_by: Optional[int] = None
     reject_reason: Optional[str] = None
+    created_at: datetime
 
     class Config:
         from_attributes = True
@@ -101,4 +103,23 @@ class DailyAttendanceReport(BaseModel):
     absent: int
     on_leave: int
     attendance_rate: float
+    records: list[AttendanceResponse]
+
+class EmployeeAttendancePeriod(BaseModel):
+    start: date
+    end: date
+
+class EmployeeAttendanceHistorySummary(BaseModel):
+    present_days: int
+    absent_days: int
+    late_days: int
+    total_ot_hours: float
+    attendance_rate: float
+
+class EmployeeAttendanceHistory(BaseModel):
+    employee_id: int
+    employee_no: str
+    full_name: str
+    period: EmployeeAttendancePeriod
+    summary: EmployeeAttendanceHistorySummary
     records: list[AttendanceResponse]

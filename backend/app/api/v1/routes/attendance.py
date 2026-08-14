@@ -8,7 +8,8 @@ from app.core.dependencies import get_current_user, hr_manager_only, supervisor_
 from app.schemas.attendance import (
     ShiftCreate, ShiftResponse,
     ManualAttendanceCreate, BiometricLogCreate, AttendanceResponse,
-    LeaveRequestCreate, LeaveRequestResponse, LeaveApproval
+    LeaveRequestCreate, LeaveRequestResponse, LeaveApproval,
+    DailyAttendanceReport, EmployeeAttendanceHistory
 )
 from app.services.attendance_service import AttendanceService, LeaveService, ShiftService
 from app.models.user import User
@@ -54,7 +55,7 @@ def biometric_punch(
     """
     return AttendanceService.biometric_punch(db, data)
 
-@router.get("/daily")
+@router.get("/daily", response_model=DailyAttendanceReport)
 def daily_report(
     report_date: date = Query(default=date.today()),
     db: Session = Depends(get_db),
@@ -73,7 +74,7 @@ def monthly_summary(
     """Monthly attendance summary — used for payroll processing"""
     return AttendanceService.get_monthly_summary(db, year, month)
 
-@router.get("/employee/{employee_id}")
+@router.get("/employee/{employee_id}", response_model=EmployeeAttendanceHistory)
 def employee_attendance(
     employee_id: int,
     start_date: date = Query(...),

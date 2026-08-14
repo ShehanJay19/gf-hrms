@@ -71,3 +71,4 @@ class PayrollSummary(BaseModel):
     total_net: Decimal
     total_ot_cost: Decimal
     status: PayrollStatus
+    payslips: list[PayslipResponse]

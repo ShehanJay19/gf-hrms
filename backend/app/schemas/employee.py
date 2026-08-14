@@ -159,3 +159,7 @@ class EmployeeListResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class EmployeeListEnvelope(BaseModel):
+    total: int
+    employees: list[EmployeeListResponse]
