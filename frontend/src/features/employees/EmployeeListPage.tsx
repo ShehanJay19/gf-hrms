@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import PageHeader from '../../components/PageHeader';
 import StatCard from '../../components/StatCard';
 import StatusPill from '../../components/StatusPill';
@@ -7,6 +7,7 @@ import Avatar from '../../components/Avatar';
 import Skeleton from '../../components/Skeleton';
 import ErrorState from '../../components/ErrorState';
 import EmptyState from '../../components/EmptyState';
+import Icon from '../../components/Icon';
 import { useApiQuery } from '../../lib/hooks/useApiQuery';
 import { useAuth } from '../../app/AuthContext';
 import { hasRole, HR_MANAGER_ROLES } from '../../lib/roles';
@@ -25,9 +26,10 @@ const EMPLOYMENT_TYPES: EmploymentType[] = ['permanent', 'contract', 'casual', '
 export default function EmployeeListPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const canManage = hasRole(user?.role, HR_MANAGER_ROLES);
 
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(searchParams.get('q') ?? '');
   const [departmentId, setDepartmentId] = useState<number | ''>('');
   const [employmentType, setEmploymentType] = useState<EmploymentType | ''>('');
   const [page, setPage] = useState(0);
@@ -89,7 +91,9 @@ export default function EmployeeListPage() {
           </div>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             <label className="searchbar" aria-label="Search employees">
-              <span className="search-icon">⌕</span>
+              <span className="search-icon">
+                <Icon name="search" size={15} />
+              </span>
               <input
                 placeholder="Search by name, ID, or NIC..."
                 value={search}
