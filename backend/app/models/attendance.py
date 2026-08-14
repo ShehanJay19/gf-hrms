@@ -32,7 +32,14 @@ class AttendanceLog(BaseModel):
     date            = Column(Date, nullable=False, index=True)
     check_in        = Column(Time, nullable=True)
     check_out       = Column(Time, nullable=True)
-    status          = Column(Enum(AttendanceStatus), default=AttendanceStatus.ABSENT)
+    status          = Column(
+        Enum(
+            AttendanceStatus,
+            values_callable=lambda enum_cls: [member.value for member in enum_cls],
+            name="attendancestatus",
+        ),
+        default=AttendanceStatus.ABSENT,
+    )
     shift_id        = Column(Integer, ForeignKey("shifts.id"), nullable=True)
 
     # Computed fields (calculated by the attendance engine)
@@ -64,12 +71,26 @@ class LeaveRequest(BaseModel):
     __tablename__ = "leave_requests"
 
     employee_id   = Column(Integer, ForeignKey("employees.id"), nullable=False, index=True)
-    leave_type    = Column(Enum(LeaveType), nullable=False)
+    leave_type    = Column(
+        Enum(
+            LeaveType,
+            values_callable=lambda enum_cls: [member.value for member in enum_cls],
+            name="leavetype",
+        ),
+        nullable=False,
+    )
     start_date    = Column(Date, nullable=False)
     end_date      = Column(Date, nullable=False)
     total_days    = Column(Numeric(4, 1), nullable=False)
     reason        = Column(Text, nullable=True)
-    status        = Column(Enum(LeaveStatus), default=LeaveStatus.PENDING)
+    status        = Column(
+        Enum(
+            LeaveStatus,
+            values_callable=lambda enum_cls: [member.value for member in enum_cls],
+            name="leavestatus",
+        ),
+        default=LeaveStatus.PENDING,
+    )
     approved_by   = Column(Integer, ForeignKey("employees.id"), nullable=True)
     approved_at   = Column(Date, nullable=True)
     reject_reason = Column(Text, nullable=True)
@@ -91,7 +112,14 @@ class LeaveBalance(BaseModel):
 
     employee_id   = Column(Integer, ForeignKey("employees.id"), nullable=False)
     year          = Column(Integer, nullable=False)
-    leave_type    = Column(Enum(LeaveType), nullable=False)
+    leave_type    = Column(
+        Enum(
+            LeaveType,
+            values_callable=lambda enum_cls: [member.value for member in enum_cls],
+            name="leavetype",
+        ),
+        nullable=False,
+    )
     entitled      = Column(Numeric(4, 1), default=0)
     taken         = Column(Numeric(4, 1), default=0)
     remaining     = Column(Numeric(4, 1), default=0)

@@ -209,6 +209,7 @@ export default function EmployeeFormPage({ mode }: { mode: 'create' | 'edit' }) 
               required
               disabled={mode === 'edit'}
               options={[
+                { value: '', label: 'Select gender' },
                 { value: 'male', label: 'Male' },
                 { value: 'female', label: 'Female' },
                 { value: 'other', label: 'Other' },

@@ -113,8 +113,10 @@ class PayrollEngine:
         ).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
         # ── DEDUCTIONS ────────────────────────────────────────
-        # EPF calculated on basic salary only (not allowances)
-        epf_employee = (basic_salary * EPF_EMPLOYEE_RATE).quantize(
+        # EPF calculated on earned (attendance-adjusted) basic, not the nominal
+        # contracted salary — otherwise an employee with heavy no-pay days is
+        # charged EPF on pay they never earned, which can push net salary negative.
+        epf_employee = (effective_basic * EPF_EMPLOYEE_RATE).quantize(
             Decimal("0.01"), rounding=ROUND_HALF_UP
         )
         loan_deduct  = Decimal("0")   # Loan module coming later
@@ -125,10 +127,10 @@ class PayrollEngine:
         ).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
         # ── EMPLOYER CONTRIBUTIONS ────────────────────────────
-        epf_employer = (basic_salary * EPF_EMPLOYER_RATE).quantize(
+        epf_employer = (effective_basic * EPF_EMPLOYER_RATE).quantize(
             Decimal("0.01"), rounding=ROUND_HALF_UP
         )
-        etf_employer = (basic_salary * ETF_EMPLOYER_RATE).quantize(
+        etf_employer = (effective_basic * ETF_EMPLOYER_RATE).quantize(
             Decimal("0.01"), rounding=ROUND_HALF_UP
         )
 

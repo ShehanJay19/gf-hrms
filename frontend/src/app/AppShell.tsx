@@ -14,7 +14,7 @@ const NAV_ITEMS: NavItem[] = [
   { to: '/employees', label: 'Employees', icon: '\u{1F465}' },
   { to: '/attendance', label: 'Attendance', icon: '\u{1F553}' },
   { to: '/leaves', label: 'Leaves', icon: '\u{1F4C4}' },
-  { to: '/payroll/runs', label: 'Payroll', icon: '\u{1F4B0}' },
+  { to: '/payroll/runs', label: 'Payroll', icon: '\u{1F4B0}', allow: HR_MANAGER_ROLES },
   { to: '/reports', label: 'Reports', icon: '\u{1F4CA}', allow: HR_MANAGER_ROLES },
   { to: '/exports', label: 'Exports', icon: '⬇' },
   { to: '/settings', label: 'Org Settings', icon: '⚙', allow: HR_MANAGER_ROLES },

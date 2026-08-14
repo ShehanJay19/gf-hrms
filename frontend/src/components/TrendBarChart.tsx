@@ -1,7 +1,6 @@
 type Point = {
   label: string;
   value: number;
-  secondaryLabel?: string;
 };
 
 type Props = {
@@ -16,41 +15,38 @@ export default function TrendBarChart({ points, valueFormatter = (v) => String(v
   }
 
   const max = Math.max(...points.map((p) => p.value), 1);
-  const barWidth = 100 / points.length;
 
   return (
-    <div>
-      <svg viewBox={`0 0 100 ${height}`} preserveAspectRatio="none" style={{ width: '100%', height, display: 'block' }}>
-        {points.map((point, index) => {
-          const barHeight = (point.value / max) * (height - 40);
-          const x = index * barWidth + barWidth * 0.15;
-          const width = barWidth * 0.7;
-          const y = height - 24 - barHeight;
-          return (
-            <g key={point.label}>
-              <rect x={x} y={y} width={width} height={barHeight} rx={1.5} fill="var(--color-brand-600)" />
-              <text
-                x={x + width / 2}
-                y={y - 4}
-                fontSize={3.6}
-                textAnchor="middle"
-                fill="var(--color-ink-500)"
-              >
-                {valueFormatter(point.value)}
-              </text>
-              <text
-                x={x + width / 2}
-                y={height - 10}
-                fontSize={3.6}
-                textAnchor="middle"
-                fill="var(--color-ink-500)"
-              >
-                {point.label}
-              </text>
-            </g>
-          );
-        })}
-      </svg>
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'flex-end',
+        gap: 12,
+        height,
+        padding: '8px 4px 0',
+      }}
+    >
+      {points.map((point) => {
+        const barHeight = Math.max((point.value / max) * (height - 48), 2);
+        return (
+          <div
+            key={point.label}
+            style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%', justifyContent: 'flex-end' }}
+          >
+            <span style={{ fontSize: 12, color: 'var(--color-ink-500)', marginBottom: 4 }}>{valueFormatter(point.value)}</span>
+            <div
+              style={{
+                width: '100%',
+                maxWidth: 56,
+                height: barHeight,
+                borderRadius: '4px 4px 0 0',
+                background: 'var(--color-brand-600)',
+              }}
+            />
+            <span style={{ fontSize: 12, color: 'var(--color-ink-500)', marginTop: 6 }}>{point.label}</span>
+          </div>
+        );
+      })}
     </div>
   );
 }
