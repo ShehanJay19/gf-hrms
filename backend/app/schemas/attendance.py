@@ -102,3 +102,22 @@ class DailyAttendanceReport(BaseModel):
     on_leave: int
     attendance_rate: float
     records: list[AttendanceResponse]
+
+class EmployeeAttendancePeriod(BaseModel):
+    start: date
+    end: date
+
+class EmployeeAttendanceHistorySummary(BaseModel):
+    present_days: int
+    absent_days: int
+    late_days: int
+    total_ot_hours: float
+    attendance_rate: float
+
+class EmployeeAttendanceHistory(BaseModel):
+    employee_id: int
+    employee_no: str
+    full_name: str
+    period: EmployeeAttendancePeriod
+    summary: EmployeeAttendanceHistorySummary
+    records: list[AttendanceResponse]

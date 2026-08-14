@@ -4,7 +4,7 @@ from typing import Optional
 from app.core.database import get_db
 from app.core.dependencies import get_current_user, hr_manager_only
 from app.schemas.employee import (
-    EmployeeCreate, EmployeeUpdate, EmployeeResponse, EmployeeListResponse,
+    EmployeeCreate, EmployeeUpdate, EmployeeResponse, EmployeeListResponse, EmployeeListEnvelope,
     DepartmentCreate, DepartmentResponse,
     SectionCreate, SectionResponse,
     DesignationCreate, DesignationResponse
@@ -77,7 +77,7 @@ def list_designations(
     return DesignationService.get_all(db)
 
 # ── EMPLOYEE ROUTES ────────────────────────────────────────
-@router.post("", status_code=201)
+@router.post("", response_model=EmployeeResponse, status_code=201)
 def create_employee(
     data: EmployeeCreate,
     db: Session = Depends(get_db),
@@ -85,7 +85,7 @@ def create_employee(
 ):
     return EmployeeService.create(db, data)
 
-@router.get("")
+@router.get("", response_model=EmployeeListEnvelope)
 def list_employees(
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=200),
