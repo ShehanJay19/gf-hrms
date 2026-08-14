@@ -1,4 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+
+import { fetchJson } from '../lib/api';
+import { downloadApiFile } from '../lib/download';
 
 const recent = [
   { name: 'Payroll_Mar24_Final.xlsx', type: 'EXCEL', by: 'Admin (A. De Silva)', date: 'Today, 10:45 AM' },
@@ -7,6 +10,45 @@ const recent = [
 ];
 
 export default function Exports() {
+  const [payrollRunId, setPayrollRunId] = useState<number | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const attendanceYear = new Date().getFullYear();
+  const attendanceMonth = new Date().getMonth() + 1;
+  const payslipRunId = payrollRunId;
+  const payslipEmployeeId = 1;
+
+  useEffect(() => {
+    let active = true;
+
+    const loadLatestRun = async () => {
+      try {
+        const runs = await fetchJson<Array<{ id: number }>>('/payroll/runs');
+        if (active) {
+          setPayrollRunId(runs[0]?.id ?? null);
+        }
+      } catch (fetchError) {
+        if (active) {
+          setError(fetchError instanceof Error ? fetchError.message : 'Unable to load payroll runs.');
+        }
+      }
+    };
+
+    void loadLatestRun();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const handleDownload = async (downloadTask: () => Promise<void>) => {
+    try {
+      await downloadTask();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to download file.';
+      window.alert(message);
+    }
+  };
+
   return (
     <div>
       <header className="topbar">
@@ -19,6 +61,8 @@ export default function Exports() {
       </header>
 
       <section style={{ marginTop: 18 }}>
+        {error && <div style={{ color: '#dc2626', marginBottom: 12 }}>{error}</div>}
+
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
           <article className="panel">
             <h3>Payroll Register Excel</h3>
@@ -28,7 +72,13 @@ export default function Exports() {
                 <option>March 2024 - Final Run</option>
               </select>
               <div style={{ marginTop: 12 }}>
-                <button className="primary-button">Download Register</button>
+                <button
+                  className="primary-button"
+                  type="button"
+                  onClick={() => payrollRunId === null ? window.alert('No payroll run available yet.') : handleDownload(() => downloadApiFile(`/exports/payroll/${payrollRunId}/excel`, `payroll_register_${payrollRunId}.xlsx`))}
+                >
+                  Download Register
+                </button>
               </div>
             </div>
           </article>
@@ -41,7 +91,13 @@ export default function Exports() {
                 <option>Current Month (March 2024)</option>
               </select>
               <div style={{ marginTop: 12 }}>
-                <button className="primary-button">Download Statutory Report</button>
+                <button
+                  className="primary-button"
+                  type="button"
+                  onClick={() => payrollRunId === null ? window.alert('No payroll run available yet.') : handleDownload(() => downloadApiFile(`/exports/payroll/${payrollRunId}/epf-excel`, `epf_etf_report_${payrollRunId}.xlsx`))}
+                >
+                  Download Statutory Report
+                </button>
               </div>
             </div>
           </article>
@@ -60,7 +116,13 @@ export default function Exports() {
               </select>
             </div>
             <div style={{ marginTop: 12 }}>
-              <button className="primary-button">Generate Attendance Export</button>
+              <button
+                className="primary-button"
+                type="button"
+                onClick={() => handleDownload(() => downloadApiFile(`/exports/attendance/${attendanceYear}/${attendanceMonth}/excel`, `attendance_${attendanceYear}_${attendanceMonth}.xlsx`))}
+              >
+                Generate Attendance Export
+              </button>
             </div>
           </article>
 
@@ -70,7 +132,13 @@ export default function Exports() {
             <div style={{ marginTop: 12 }}>
               <input placeholder="Search employee or department" style={{ width: '100%', height: 40, padding: 8, borderRadius: 8 }} />
               <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
-                <button className="primary-button">Batch PDF</button>
+                <button
+                  className="primary-button"
+                  type="button"
+                  onClick={() => payslipRunId === null ? window.alert('No payroll run available yet.') : handleDownload(() => downloadApiFile(`/exports/payslip/${payslipRunId}/${payslipEmployeeId}/pdf`, `payslip_${payslipRunId}_${payslipEmployeeId}.pdf`))}
+                >
+                  Batch PDF
+                </button>
               </div>
             </div>
           </article>
@@ -102,7 +170,15 @@ export default function Exports() {
                     <td style={{ color: '#2563eb', fontWeight: 700 }}>{r.type}</td>
                     <td>{r.by}</td>
                     <td>{r.date}</td>
-                    <td><button className="secondary-button">Download</button></td>
+                    <td>
+                      <button
+                        className="secondary-button"
+                        type="button"
+                        onClick={() => payrollRunId === null ? window.alert('No payroll run available yet.') : handleDownload(() => downloadApiFile(`/exports/payroll/${payrollRunId}/excel`, `payroll_register_${payrollRunId}.xlsx`))}
+                      >
+                        Download
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>

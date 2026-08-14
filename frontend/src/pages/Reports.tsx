@@ -1,4 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+
+import { fetchJson } from '../lib/api';
+import { downloadApiFile } from '../lib/download';
 
 const departments = [
   { name: 'Cutting', basic: 42500, ot: 8450, allowances: 3200 },
@@ -9,6 +12,46 @@ const departments = [
 ];
 
 export default function Reports() {
+  const [payrollRunId, setPayrollRunId] = useState<number | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadLatestRun = async () => {
+      try {
+        const runs = await fetchJson<Array<{ id: number }>>('/payroll/runs');
+        if (active) {
+          setPayrollRunId(runs[0]?.id ?? null);
+        }
+      } catch (fetchError) {
+        if (active) {
+          setError(fetchError instanceof Error ? fetchError.message : 'Unable to load payroll runs.');
+        }
+      }
+    };
+
+    void loadLatestRun();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const handleDownload = async () => {
+    if (payrollRunId === null) {
+      window.alert('No payroll run available yet.');
+      return;
+    }
+
+    try {
+      await downloadApiFile(`/exports/payroll/${payrollRunId}/excel`, `payroll_register_${payrollRunId}.xlsx`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to download file.';
+      window.alert(message);
+    }
+  };
+
   return (
     <div>
       <header className="topbar">
@@ -18,12 +61,14 @@ export default function Reports() {
             <p style={{ margin: '6px 0 0', color: '#64748b' }}>Generate and download official garment factory documentation.</p>
           </div>
           <div>
-            <button className="primary-button">Export Excel</button>
+            <button className="primary-button" type="button" onClick={handleDownload}>Export Excel</button>
           </div>
         </div>
       </header>
 
       <section style={{ marginTop: 18 }}>
+        {error && <div style={{ color: '#dc2626', marginBottom: 12 }}>{error}</div>}
+
         <div className="stats-grid">
           <article className="stat-card">
             <div className="stat-label">Total Labour Cost</div>

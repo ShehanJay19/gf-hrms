@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Employees from './pages/Employees';
 import AddEmployee from './pages/AddEmployee';
 import LeaveManagement from './pages/LeaveManagement';
@@ -7,6 +7,8 @@ import Reports from './pages/Reports';
 import PayrollRuns from './pages/PayrollRuns';
 import Exports from './pages/Exports';
 import System from './pages/System';
+import Login from './pages/Login';
+import { clearStoredAuth, getAccessToken, getStoredAuthUser } from './lib/api';
 
 type StatCard = {
   label: string;
@@ -196,7 +198,31 @@ function PayrollDashboard() {
 }
 
 function App() {
+  const [authenticated, setAuthenticated] = useState(Boolean(getAccessToken()));
+  const [authUser, setAuthUser] = useState(() => getStoredAuthUser());
   const [page, setPage] = useState<string>('Payroll');
+
+  useEffect(() => {
+    setAuthenticated(Boolean(getAccessToken()));
+    setAuthUser(getStoredAuthUser());
+  }, []);
+
+  const handleLogin = () => {
+    setAuthenticated(true);
+    setAuthUser(getStoredAuthUser());
+    setPage('Payroll');
+  };
+
+  const handleLogout = () => {
+    clearStoredAuth();
+    setAuthenticated(false);
+    setAuthUser(null);
+    setPage('Payroll');
+  };
+
+  if (!authenticated) {
+    return <Login onLogin={handleLogin} />;
+  }
 
   return (
     <div className="shell">
@@ -223,9 +249,12 @@ function App() {
         <div className="sidebar-footer">
           <div className="avatar">RU</div>
           <div>
-            <div className="footer-name">Rahim Uddin</div>
-            <div className="footer-role">Payroll Lead</div>
+            <div className="footer-name">{authUser?.username || 'Super Admin'}</div>
+            <div className="footer-role">{authUser?.role || 'Super Admin'}</div>
           </div>
+          <button className="logout-button" type="button" onClick={handleLogout}>
+            Logout
+          </button>
         </div>
       </aside>
 

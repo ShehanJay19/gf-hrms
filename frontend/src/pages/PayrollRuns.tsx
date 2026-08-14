@@ -1,12 +1,69 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
-const runs = [
-  { id: 'PR-2024-10', month: 'Oct 2024', period: '01 Oct - 31 Oct', status: 'Paid', employees: '1,248', gross: '৳ 4,285,000', net: '৳ 3,842,500' },
-  { id: 'PR-2024-11', month: 'Nov 2024', period: '01 Nov - 30 Nov', status: 'Pending Approval', employees: '1,252', gross: '৳ 4,310,200', net: '৳ 3,890,100' },
-  { id: 'PR-2024-12', month: 'Dec 2024', period: '01 Dec - 31 Dec', status: 'Draft', employees: '--', gross: '--', net: '--' },
-];
+import { fetchJson } from '../lib/api';
+import { downloadApiFile } from '../lib/download';
+
+type PayrollRun = {
+  id: number;
+  month: number;
+  year: number;
+  period_start: string;
+  period_end: string;
+  status: string;
+  notes?: string | null;
+};
+
+const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+function formatMoney(value: number) {
+  return new Intl.NumberFormat('en-LK', { maximumFractionDigits: 0 }).format(value);
+}
 
 export default function PayrollRuns() {
+  const [runs, setRuns] = useState<PayrollRun[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadRuns = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await fetchJson<PayrollRun[]>('/payroll/runs');
+        if (active) {
+          setRuns(data);
+        }
+      } catch (fetchError) {
+        if (active) {
+          setError(fetchError instanceof Error ? fetchError.message : 'Unable to load payroll runs.');
+        }
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void loadRuns();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const sortedRuns = useMemo(() => [...runs].sort((left, right) => right.year - left.year || right.month - left.month), [runs]);
+
+  const handleDownload = async (runId: number) => {
+    try {
+      await downloadApiFile(`/exports/payroll/${runId}/excel`, `payroll_register_${runId}.xlsx`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to download file.';
+      window.alert(message);
+    }
+  };
+
   return (
     <div>
       <header className="topbar">
@@ -29,9 +86,11 @@ export default function PayrollRuns() {
             </div>
             <div className="toolbar-actions">
               <button className="secondary-button">Filter</button>
-              <button className="secondary-button">Batch Export</button>
+              <button className="secondary-button" type="button" onClick={() => handleDownload(sortedRuns[0]?.id ?? 1)}>Batch Export</button>
             </div>
           </div>
+
+          {error && <div style={{ color: '#dc2626', marginBottom: 12 }}>{error}</div>}
 
           <div className="table-wrap">
             <table>
@@ -47,23 +106,33 @@ export default function PayrollRuns() {
                 </tr>
               </thead>
               <tbody>
-                {runs.map((r) => (
-                  <tr key={r.id}>
-                    <td><strong>{r.month}</strong></td>
-                    <td>{r.period}</td>
-                    <td><span className={`table-status ${r.status.toLowerCase().replace(/\s+/g, '-')}`}>{r.status}</span></td>
-                    <td>{r.employees}</td>
-                    <td>{r.gross}</td>
-                    <td><strong>{r.net}</strong></td>
-                    <td>
-                      <div className="action-links">
-                        <button type="button">View</button>
-                        <button type="button">Approve</button>
-                        <button type="button">Export</button>
-                      </div>
-                    </td>
+                {loading ? (
+                  <tr>
+                    <td colSpan={7}>Loading payroll runs...</td>
                   </tr>
-                ))}
+                ) : sortedRuns.length === 0 ? (
+                  <tr>
+                    <td colSpan={7}>No payroll runs found.</td>
+                  </tr>
+                ) : (
+                  sortedRuns.map((run) => (
+                    <tr key={run.id}>
+                      <td><strong>{MONTH_NAMES[run.month - 1]} {run.year}</strong></td>
+                      <td>{new Date(run.period_start).toLocaleDateString()} – {new Date(run.period_end).toLocaleDateString()}</td>
+                      <td><span className={`table-status ${run.status.toLowerCase().replace(/\s+/g, '-')}`}>{run.status}</span></td>
+                      <td>—</td>
+                      <td>—</td>
+                      <td>—</td>
+                      <td>
+                        <div className="action-links">
+                          <button type="button">View</button>
+                          <button type="button">Approve</button>
+                          <button type="button" onClick={() => handleDownload(run.id)}>Export</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
